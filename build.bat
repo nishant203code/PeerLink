@@ -1,19 +1,16 @@
 @echo off
 setlocal
 
-echo Building frontend...
-cd frontend
-call npm run build
-cd ..
+pushd "%~dp0"
+if errorlevel 1 exit /b 1
 
-echo Building backend...
-cd backend
-call npm run build
-cd ..
-
-echo Building Docker image...
-docker build -t peerlink .
+echo Building frontend, backend, and Docker image...
+docker build -f dockerfile -t peerlink .
+if errorlevel 1 (
+    popd
+    exit /b 1
+)
 
 echo Build process completed!
-
+popd
 endlocal
