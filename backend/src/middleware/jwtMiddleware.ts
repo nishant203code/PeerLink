@@ -1,6 +1,5 @@
 import  {verifyToken}  from '../utils/jwt';
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 
 const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
@@ -9,8 +8,7 @@ const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
         return;
     }
     try {
-        verifyToken(token);
-        const decoded = jwt.decode(token);
+        const decoded = verifyToken(token);
 
         if (decoded && typeof decoded !== 'string' && decoded.id) {
             req.body.user_id = decoded.id;
