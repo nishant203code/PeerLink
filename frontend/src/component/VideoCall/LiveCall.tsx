@@ -14,8 +14,6 @@ export default function LiveCall({
   const video = useRef<HTMLVideoElement>(null);
   const video2 = useRef<HTMLVideoElement>(null);
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
   const [connecting,setConnecting] = useState<boolean>(true);
 
   useEffect(() => {
@@ -44,41 +42,6 @@ export default function LiveCall({
       video2.current!.muted = true;
     }
   }, [peerConnectionRef]);
-
-  // Event handlers for dragging
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    setPosition((prev) => ({
-      x: prev.x - e.movementX,
-      y: prev.y - e.movementY,
-    }));
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  useEffect(() => {
-    position
-    handleMouseDown
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    } else {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging]);
 
   return (
     <div className="sm:p-2 bg-slate-800 h-full overflow-hidden ">
