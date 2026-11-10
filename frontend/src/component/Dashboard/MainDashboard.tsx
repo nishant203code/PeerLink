@@ -108,7 +108,6 @@ function Contactboard(){
         })
     }
 
-    useEffect(()=>{},[flag])
     return(
         <div className="h-full w-full sm:w-max flex items-center flex-col p-2 bg-white">
             <div className='flex '>
