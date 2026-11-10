@@ -8,6 +8,7 @@ import finduser from './adduser';
 import getcontacts from './getcontacts';
 import find from './finduser';
 import request from './request';
+import iceServers from './iceServers';
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use('/adduser', finduser);
 router.use('/getcontacts', getcontacts);
 router.use('/finduser', find)
 router.use('/request', request);
+router.use('/ice-servers', iceServers);
 router.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "./public/index.html"));
 });
