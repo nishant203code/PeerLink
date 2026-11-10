@@ -5,10 +5,6 @@ import z from 'zod';
 
 const router = express.Router();
 
-const requestSchema1 = z.object({
-    user_id: z.string()
-});
-
 const requestSchema2 = z.object({
     user_id: z.string(),
     contact_id: z.string()
@@ -70,7 +66,7 @@ router.post('/accept',jwtMiddleware,async(req,res)=>{
 
         const removeRequest = await user.updateOne({_id:user_id},{$pull:{incomingRequests:{id:contact_id}}});
         const removesenderrequest = await user.updateOne({_id:contact_id},{$pull:{outgoingRequests:{id:user_id}}});
-        const updatesendercontact = await user.updateOne({_id:contact_id},{$push:{contacts:{userId:user_id, name:response.name, email:response.email}}});
+        await user.updateOne({_id:contact_id},{$push:{contacts:{userId:user_id, name:response.name, email:response.email}}});
 
         if(!removeRequest || !removesenderrequest){
             res.status(400).json({message:'Request not removed'});
