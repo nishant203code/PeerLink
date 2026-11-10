@@ -95,6 +95,7 @@ const Videocall: React.FC = () => {
 
       if(peerConnection1){
         await peerConnection1.setRemoteDescription(data.offer);
+        await flushIceCandidates(peerConnection1);
         const answer = await peerConnection1.createAnswer();
         await peerConnection1.setLocalDescription(answer);
         websocket?.send(JSON.stringify({ type: "answer", answer: answer, userId: data.userId }));
@@ -106,6 +107,7 @@ const Videocall: React.FC = () => {
 
     if( peerConnection ){
       await peerConnection.setRemoteDescription(data.answer);
+      await flushIceCandidates(peerConnection);
     }
   }
 
@@ -192,8 +194,15 @@ const Videocall: React.FC = () => {
     }
   }, [websocket,peerConnection]);
 
+  async function flushIceCandidates(connection: RTCPeerConnection){
+    const candidates = icecandidatebuffer.current.splice(0);
+    for(const candidate of candidates){
+      await connection.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+  }
+
   async function addIceCandidate(candidate: any){
-    if(peerConnection){
+    if(peerConnection?.remoteDescription){
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     }else{
       icecandidatebuffer.current.push(candidate);
@@ -208,9 +217,6 @@ const Videocall: React.FC = () => {
         }
       };
       peerConnection.oniceconnectionstatechange = iceconnectionstate;
-      icecandidatebuffer.current.forEach(async (candidate) => {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      })
     }
 
   }, [peerConnection]);
@@ -239,4 +245,4 @@ const Videocall: React.FC = () => {
   )
 };
 
-export default Videocall; 
+export default Videocall;
