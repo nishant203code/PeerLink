@@ -3,10 +3,9 @@ import { IncomingMessage } from 'http';
 import * as http from 'http';
 import {verifyToken} from '../utils/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import {decode} from 'jsonwebtoken';
 import {parse} from 'cookie';
 
-export const userSocket = new Map<String, WebSocket>();
+export const userSocket = new Map<string, WebSocket>();
 
 export function WS_SERVER(server: http.Server) {
   const wss = new WebSocket.Server({ server });
@@ -27,27 +26,34 @@ export function WS_SERVER(server: http.Server) {
       ws.close(1000);
       return;
     }
+    let id: JwtPayload;
     try {
-      const decoded = verifyToken(token) as JwtPayload;
+      id = verifyToken(token) as JwtPayload;
 
-      const extingSocket = userSocket.get(decoded.id);
-      if(extingSocket){
-        extingSocket.close(1000);
+      const existingSocket = userSocket.get(id.id);
+      if(existingSocket){
+        existingSocket.close(1000);
       }
 
-      userSocket.set(decoded.id, ws); 
+      userSocket.set(id.id, ws);
       
     } catch (err) {
       ws.send('Invalid token, Unauthorized');
       ws.close(1000);
       return;
     }
-    const id = decode(token) as JwtPayload;
     ws.on('message', (message: WebSocket.Data) => {
-      const data = JSON.parse(message.toString());
-      const { type, userId } = data;
+      let data;
+      try {
+        data = JSON.parse(message.toString());
+      } catch {
+        return;
+      }
 
-      // console.log(data);
+      if (!data || typeof data.type !== 'string' || typeof data.userId !== 'string') {
+        return;
+      }
+      const { type, userId } = data;
 
       if (type === 'offer') {
         const socket = userSocket.get(userId); 
@@ -93,7 +99,9 @@ export function WS_SERVER(server: http.Server) {
     });
 
     ws.on('close', () => {
-      userSocket.delete(id.id);
+      if (userSocket.get(id.id) === ws) {
+        userSocket.delete(id.id);
+      }
     });
   });
 }
