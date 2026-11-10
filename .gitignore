@@ -1,14 +1,25 @@
 # Build and Output
 dist
 dist-ssr
-backend/dist
-frontend/dist
 node_modules
+*.tsbuildinfo
+
+# Local caches and test reports
+.vite/
+.cache/
+.eslintcache
+coverage/
+.nyc_output/
+
+# Local notes and template documentation
+/DEPLOYMENT.md
+/frontend/README.md
 
 # Environment Variables
 .env
 .env.*
 !.env.example
+*.local
 
 # Logs
 logs
@@ -24,9 +35,10 @@ lerna-debug.log*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+Desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-*.tsbuildinfo
