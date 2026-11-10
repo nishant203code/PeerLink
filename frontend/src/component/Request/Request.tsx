@@ -54,7 +54,6 @@ function Incoming() {
     const url = useRecoilValue(apiURL);
     const [contacts, setContacts] = useState([]);
     const toast = useToast();
-    console.log("api " + url)
 
     function call(){
         axios.get(`${url}/api/request/incoming`,{withCredentials:true}).then((res)=>{
