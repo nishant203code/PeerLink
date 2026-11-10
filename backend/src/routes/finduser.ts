@@ -13,7 +13,7 @@ const router = express.Router();
 router.post('/',jwtMiddleware,async(req,res)=>{
 
     try{
-        const {email,user_id}= findUserSchema.parse(req.body);
+        const {email}= findUserSchema.parse(req.body);
 
         const response = await user.findOne({email},{name:1,email:1,_id:1});
 
