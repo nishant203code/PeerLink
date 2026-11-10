@@ -10,8 +10,6 @@ node_modules
 .eslintcache
 coverage/
 .nyc_output/
-
-# Local notes and template documentation
 /DEPLOYMENT.md
 /frontend/README.md
 
