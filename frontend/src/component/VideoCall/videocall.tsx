@@ -1,19 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
-import { websocketstate, user } from '../../recoil/atom';
+import { websocketstate, user, apiURL } from '../../recoil/atom';
 import { useRecoilValue } from 'recoil';
+import axios from 'axios';
 import Calling from './Calling';
 import LiveCall from './LiveCall';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Videocall: React.FC = () => {
 
-  const configuration = {
-    iceServers: [
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' }, 
-   ],
-  };
   const [peerConnection,setperrConnection] = useState<RTCPeerConnection | null>(null);
 
   function iceconnectionstate(){
@@ -32,18 +27,13 @@ const Videocall: React.FC = () => {
     }
   }
 
-  const createPeerConnection = () => {
-    const peerConnection = new RTCPeerConnection(configuration);
-
-    return peerConnection;
-  }
-
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const intervalRef = useRef<number | null>(null);
   const location = useLocation();
   const dataa = location.state;
   const websocket = useRecoilValue(websocketstate);
+  const url = useRecoilValue(apiURL);
   const User = useRecoilValue(user);
   const icecandidatebuffer = useRef<any[]>(dataa.type === "call" ? [] : dataa.icecandidate);
 
@@ -142,10 +132,38 @@ const Videocall: React.FC = () => {
   }, [mediaStream]);
 
   useEffect(()=>{
-    if(mediaStream){
-       setperrConnection(createPeerConnection());
-    }
-  },[mediaStream]);
+    if(!mediaStream)return;
+
+    const controller = new AbortController();
+    let connection: RTCPeerConnection | null = null;
+    axios.get<{ iceServers: RTCIceServer[] }>(`${url}/api/ice-servers`, {
+      withCredentials: true,
+      timeout: 12000,
+      signal: controller.signal,
+    }).then(({data}) => {
+      if(controller.signal.aborted)return;
+      connection = new RTCPeerConnection({ iceServers: data.iceServers });
+      setperrConnection(connection);
+    }).catch(() => {
+      if(controller.signal.aborted)return;
+      toast({
+        title: 'Unable to start call',
+        description: 'Could not connect to the calling service. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/dashboard');
+    });
+
+    return () => {
+      controller.abort();
+      if(connection){
+        connection.oniceconnectionstatechange = null;
+        connection.close();
+      }
+    };
+  },[mediaStream, url, toast, navigate]);
 
   useEffect(() => {
     if (websocket) {
