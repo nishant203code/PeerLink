@@ -26,5 +26,5 @@ export const apiURL = atom({
 
 export const wsURL = atom({
     key:"ws",
-    default: import.meta.env.VITE_WS_URL || (window.location.port === '5173' ? "ws://localhost:3000" : (window.location.protocol === 'https:' ? `wss://${window.location.hostname}` : `ws://${window.location.hostname}`))
+    default: import.meta.env.VITE_WS_URL || (window.location.port === '5173' ? "ws://localhost:3000" : (window.location.protocol === 'https:' ? `wss://${window.location.host}` : `ws://${window.location.host}`))
 })

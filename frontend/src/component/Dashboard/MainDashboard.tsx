@@ -3,62 +3,16 @@ import {Input,Button} from "@nextui-org/react";
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import {websocketstate,apiURL,wsURL,user} from "../../recoil/atom";
-import { useRecoilState,useRecoilValue} from 'recoil';
+import {websocketstate,apiURL,user} from "../../recoil/atom";
+import { useRecoilValue} from 'recoil';
 import { useNavigate,Route,Routes } from 'react-router-dom';
 import sampleimage from "../../assets/sample.png";
 import Request from "../Request/Request"
 
 export default function MainDashboard() {
 
-    const timeout = useRef<any>(null);
-    const wsurl = useRecoilValue(wsURL);
-    const [webs,setWebSocket] = useRecoilState(websocketstate);
-    const toast = useToast();
+    const webs = useRecoilValue(websocketstate);
     const [incoming, setIncoming] = useState<any>(null);
-
-    useEffect(()=>{
-        
-        let ws: WebSocket
-        const connect = () => {
-            ws = new WebSocket(`${wsurl}`);
-
-            ws.onopen = () => {
-                setWebSocket(ws);
-                clearTimeout(timeout.current);
-                toast({
-                    title: 'Connected',
-                    description: "Connected to server",
-                    status: 'success',
-                    duration: 2000,
-                    isClosable: true,
-                });
-            };
-
-            ws.onclose = (event) => {
-                console.log(event);
-                toast({
-                    title: 'Disconnected',
-                    description: "Disconnected from server. Attempting to reconnect...",
-                    status: 'error',
-                    duration: 2000,
-                    isClosable: true,
-                });
-                setWebSocket(null);
-                clearTimeout(timeout.current);
-                
-            };
-
-            ws.onerror = (error) => {
-                connect();
-                console.log(error);
-            };
-
-        };
-
-    if(webs === null)connect();
-
-    },[webs])
 
     const icecandidatebuffer = useRef<any[]>([]);
     useEffect(()=>{
